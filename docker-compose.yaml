@@ -1,0 +1,20 @@
+services:
+  spark-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    volumes:
+      - ./shared_data/output:/app/output
+      - ./shared_data/model:/app/model
+
+  ui-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.ui
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./shared_data/output:/app/output
+      - ./shared_data/model:/app/model
+    depends_on:
+      - spark-engine

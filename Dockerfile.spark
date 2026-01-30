@@ -1,0 +1,22 @@
+FROM apache/spark:3.5.0
+
+USER root
+WORKDIR /app
+
+# ติดตั้ง Python Dependencies ที่จำเป็น
+RUN apt-get update && apt-get install -y python3-pip && \
+    pip3 install --no-cache-dir numpy pandas
+
+# --- จุดที่ต่างจากอันเดิม (ENV สำหรับ Deployment) ---
+ENV PYSPARK_PYTHON=python3
+ENV PYSPARK_DRIVER_PYTHON=python3
+
+# เตรียม Folder และสิทธิ์การเขียนไฟล์ (Permission)
+RUN mkdir -p /app/output /app/model && chmod -R 777 /app/output /app/model
+
+COPY app_spark.py .
+COPY ratings.csv .
+COPY movies.csv .
+
+# สั่ง Execute ผ่าน spark-submit
+CMD ["/opt/spark/bin/spark-submit", "/app/app_spark.py"]

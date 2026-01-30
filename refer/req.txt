@@ -1,0 +1,8 @@
+pandas
+recommenders
+torch
+python-dotenv
+redis
+pyspark
+jupyter
+ipykernel

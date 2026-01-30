@@ -1,0 +1,40 @@
+version: '3.8'
+
+services:
+  spark-lab:
+    build: .
+    container_name: dr_desaya_spark_lab
+    volumes:
+      # เชื่อมโฟลเดอร์ปัจจุบันเข้าไปที่ /app
+      - .:/app
+    ports:
+      - "8888:8888" # Jupyter Notebook
+      - "4040:4040" # Spark UI (จะเข้าดูได้ตอนรัน Spark Session)
+    environment:
+      - SPARK_LOCAL_IP=127.0.0.1
+      - PYSPARK_PYTHON=python3
+      - PYSPARK_DRIVER_PYTHON=python3
+      # ตั้งค่าให้ Jupyter ไม่ถามหา Password/Token (สะดวกตอนเทสในเครื่องตัวเอง)
+      - JUPYTER_TOKEN=docker
+    deploy:
+      resources:
+        limits:
+          memory: 6G # ขยับขึ้นเป็น 6G เพราะมีทั้ง PyTorch และ Spark
+    tty: true
+    stdin_open: true
+    # สั่งให้รัน Jupyter ทันทีที่ Start Container
+    command: >
+      micromamba run -n de_env 
+      jupyter notebook 
+      --ip=0.0.0.0 
+      --port=8888 
+      --no-browser 
+      --allow-root 
+      --NotebookApp.token='docker'
+
+  # แถม: เพิ่ม Redis Service (เพราะใน requirements มี redis)
+  redis-server:
+    image: redis:alpine
+    container_name: redis_cache
+    ports:
+      - "6379:6379"
